@@ -1,0 +1,5 @@
+#this file is meant for ignoring certain file types
+
+#ignores transferring old quote images
+quote_of_the_day/*.jpg
+quote_of_the_day/*.png
