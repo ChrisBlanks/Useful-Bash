@@ -6,10 +6,18 @@
 # Dependency: ImageMagick's 'display' function (it's pretty handy)
 #
 
-export DISPLAY=:0.0  #allows access to Xserver
-
 #change the following to where you saved this script
 cd '/home/chrisblanks/projects/bash/utility_scripts/quote_of_the_day'
+
+#check to see if user is root
+if [ $(id -u) = 0 ]
+then
+  echo was root, so changed to local user >> log.txt
+  su - chrisblanks  #switch to local user to run Xserver
+fi
+
+xhost +  #server control is given to every user
+export DISPLAY=:0.0  #allows access to Xserver
 
 wget https://www.brainyquote.com/quote_of_the_day  #retrieves html from page
 grep 'data-img-url' quote_of_the_day | cat > link.txt #find quote of the day image anchor & write to file
@@ -42,9 +50,9 @@ then
 else 
   echo "Need to get file!"
   echo ""
-  wget "https://www.brainyquote.com$img_path" #builds url path to image
+  wget -P /home/chrisblanks/projects/bash/utility_scripts/quote_of_the_day  "https://www.brainyquote.com$img_path" #builds url path to image
 fi
 
-/usr/bin/display -delay 10  $quote_of_the_day_img  &>log.txt
+/usr/bin/display -delay 15  $quote_of_the_day_img  &>>log.txt
 
 rm link.txt quote_of_the_day* #removes unnecessary files
