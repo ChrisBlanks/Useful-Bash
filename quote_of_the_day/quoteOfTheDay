@@ -3,7 +3,13 @@
 # Programmer: Chris Blanks
 # Purpose: This script is supposed to pull the quote of the day from
 # wwww.brainyquote.com and display the image.
+# Dependency: ImageMagick's 'display' function (it's pretty handy)
+#
 
+export DISPLAY=:0.0  #allows access to Xserver
+
+#change the following to where you saved this script
+cd '/home/chrisblanks/projects/bash/utility_scripts/quote_of_the_day'
 
 wget https://www.brainyquote.com/quote_of_the_day  #retrieves html from page
 grep 'data-img-url' quote_of_the_day | cat > link.txt #find quote of the day image anchor & write to file
@@ -39,6 +45,6 @@ else
   wget "https://www.brainyquote.com$img_path" #builds url path to image
 fi
 
-xdg-open $quote_of_the_day_img   #opens image local image viewer
+/usr/bin/display -delay 10  $quote_of_the_day_img  &>log.txt
 
-rm link.txt quote_of_the_day #removes unnecessary files
+rm link.txt quote_of_the_day* #removes unnecessary files
