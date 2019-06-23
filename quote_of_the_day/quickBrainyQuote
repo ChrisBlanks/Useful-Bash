@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Programmer: Chris Blanks
+# Purpose: This script is supposed to pull the quote of the day from
+# wwww.brainyquote.com and display the image.
+# Dependency: ImageMagick's 'display' function (it's pretty handy)
+#
+# Note: This script is an update to the quoteOfTheDay, which fixes redundant wget calls
+
+#change the following to where you saved this script
+cd '/home/chrisblanks/projects/bash/utility_scripts/quote_of_the_day'
+
+#check to see if user is root
+if [ $(id -u) = 0 ]
+then
+  echo was root, so changed to local user >> log.txt
+  su - chrisblanks  #switch to local user to run Xserver
+fi
+
+xhost +  #server control is given to every user
+export DISPLAY=:0.0  #allows access to Xserver
+
+cur_date=$(date +%F)
+if [ -f "$cur_date.quote" ] ;then
+  echo Already have Brainy quote of the day.
+  /usr/bin/display -delay 2000 "$cur_date.quote" 2&>>log.txt
+else
+  wget https://www.brainyquote.com/quote_of_the_day  #retrieves html from page
+  grep 'data-img-url' quote_of_the_day | cat > link.txt #find quote of the day image anchor & write to file
+  
+  link=$(cat link.txt) #read link into variable
+  list=( $link )       #create space delimited list from link string
+  
+  for i in ${list[*]}   #iterate through every element in list
+  do
+    if [[ $i == *'data-img-url'* ]]  #checks to see if 'data-img-url' is a substring to list elements
+    then
+      echo 'found it:' $i
+      input=$i
+      input_list=(${input//=/ }) #replaces '=' with space & splits str into a list with parentheses
+    fi
+  done
+
+  img_path=${input_list[1]} #second argument of input list should be link to data
+  
+  img_path="${img_path%\"}" #removes suffix quote around link
+  img_path="${img_path#\"}" #removes prefix quote around link
+  
+  temp=(${img_path//\// }) #splits url of data image by '/'s into a list
+  quote_of_the_day_img="$cur_date.quote"
+  #grabs the last index of the split url because it's the picture name w/ file extension
+  
+  wget -P /home/chrisblanks/projects/bash/utility_scripts/quote_of_the_day -O $quote_of_the_day_img "https://www.brainyquote.com$img_path" #builds url path to image
+  
+  /usr/bin/display -delay 2000  $quote_of_the_day_img  2&>>log.txt
+  #display image for 20 seconds; write output to log.txt file
+  date >> log.txt #add a time stamp
+  
+  rm link.txt quote_of_the_day* #removes unnecessary files
+fi
