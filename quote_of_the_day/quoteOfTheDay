@@ -53,7 +53,7 @@ else
   wget -P /home/chrisblanks/projects/bash/utility_scripts/quote_of_the_day  "https://www.brainyquote.com$img_path" #builds url path to image
 fi
 
-/usr/bin/display -delay 2000  $quote_of_the_day_img  2&>>log.txt
+/usr/bin/display -delay 2000  $quote_of_the_day_img  &>>log.txt
 #display image for 20 seconds; write output to log.txt file
 date >> log.txt #add a time stamp
 
